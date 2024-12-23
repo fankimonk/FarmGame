@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace BrokenVector.LowPolyFencePack
 {
@@ -10,18 +11,37 @@ namespace BrokenVector.LowPolyFencePack
     [RequireComponent(typeof(DoorController))]
 	public class DoorToggle : MonoBehaviour
     {
+        private DoorController _doorController;
 
-        private DoorController doorController;
+        private BoxCollider _boxCollider;
 
-        void Awake()
+        private bool _isPlayerClose = false;
+        
+        private void Awake()
         {
-            doorController = GetComponent<DoorController>();
+            _doorController = GetComponent<DoorController>();
+            _boxCollider = GetComponent<BoxCollider>();
         }
 
-	    void OnMouseDown()
+        private void Update()
+        {
+	        if (_isPlayerClose && Input.GetKeyDown(KeyCode.E))
+	        {
+		        _doorController.ToggleDoor();
+		        _boxCollider.enabled = !_boxCollider.enabled;
+	        }
+        }
+
+        private void OnTriggerEnter(Collider other)
 	    {
-	        doorController.ToggleDoor();
+		    if (other.TryGetComponent<Player>(out Player player))
+			    _isPlayerClose = true;
 	    }
 
-	}
+	    private void OnTriggerExit(Collider other)
+	    {
+		    if (other.TryGetComponent<Player>(out Player player))
+			    _isPlayerClose = false;
+	    }
+    }
 }
